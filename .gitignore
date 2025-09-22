@@ -1,4 +1,6 @@
 .venv/
 __pycache__/
-configs/
-memory/
+configs/*
+!configs/.gitkeep
+agent/memory/*
+!agent/memory/.gitkeep
