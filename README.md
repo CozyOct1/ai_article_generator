@@ -16,7 +16,7 @@
 ai_article_generator/
 ├── agent/                      # 核心代理模块
 │   ├── action/                 # 动作执行模块
-│   │   └── run_terminal.py     # 终端交互主程序
+│   │   └── input_novel.py     # 终端交互主程序
 │   ├── memory/                 # 文章存储目录
 │   ├── planning/               # 规划和核心逻辑
 │   │   └── planning.py         # 文章生成核心功能
@@ -138,7 +138,7 @@ uv run main.py
   - `save_md()`: 保存文章为 Markdown 格式
 
 ### Terminal 交互
-- **位置**：`agent/action/run_terminal.py`
+- **位置**：`agent/action/input_novel.py`
 - **功能**：提供完整的命令行交互流程，协调各个模块完成文章生成任务
 
 ## 依赖说明

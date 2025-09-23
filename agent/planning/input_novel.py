@@ -83,15 +83,16 @@ def novel_create(
     return novel
 
 
-def save_md(title: str, novel: str) -> str:
+def save_md(directory: str, title: str, novel: str) -> str:
     """保存文章为 Markdown 文件
 
+    :param str directory: 保存目录
     :param str title: 文章标题
     :param str novel: 文章内容
     :return str: 返回保存的文件路径
     """
-    
-    filename = f"./agent/memory/{title}.md"
+    os.makedirs(f"./agent/memory/{directory}", exist_ok=True)
+    filename = f"./agent/memory/{directory}/{title}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(novel)
     return filename
