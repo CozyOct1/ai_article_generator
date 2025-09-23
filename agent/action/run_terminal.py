@@ -95,10 +95,7 @@ def run_terminal():
             if novel == "":
                 print(f"[run_terminal] <error>\n生成文章内容为空, 退出程序")
                 return
-            content = novel["内容"]
-            link = novel["参考链接"]
-            print(f"生成文章内容(耗时{tok - tik:.2f}秒):\n{content}")
-            print(f"参考链接:\n{link}")
+            print(f"生成文章内容(耗时{tok - tik:.2f}秒):\n{novel}")
         except Exception as e:
             print(f"[run_terminal] <error>\n{traceback.format_exc()}")
             return
@@ -110,7 +107,7 @@ def run_terminal():
             is_save = input("请输入正确的选项(y/n):\n")
         if is_save == "y":
             try:
-                filename = save_md(title=title, content=content, link=link)
+                filename = save_md(title=title, novel=novel)
                 print(f"文章已保存至 {filename}")
             except Exception as e:
                 print(f"[run_terminal] <error>\n{traceback.format_exc()}")

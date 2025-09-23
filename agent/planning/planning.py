@@ -80,36 +80,18 @@ def novel_create(
         print(f"[novel_create] <error>\n生成文章无效, 原始输入: {title}")
         return ""
 
-    try:
-        novel = json.loads(novel)
-    except json.JSONDecodeError as e:
-        print(f"[novel_create] <error>\nJSON解析失败, 原始内容: {novel}")
-        return ""
-
     return novel
 
 
-def save_md(title: str, content: str, link: str) -> str:
+def save_md(title: str, novel: str) -> str:
     """保存文章为 Markdown 文件
 
     :param str title: 文章标题
-    :param str content: 文章内容
-    :param str link: 参考链接
+    :param str novel: 文章内容
     :return str: 返回保存的文件路径
     """
     
     filename = f"./agent/memory/{title}.md"
     with open(filename, "w", encoding="utf-8") as f:
-        # 格式化参考链接为正确的 Markdown 格式
-        formatted_links = []
-        if isinstance(link, dict):
-            for title_text, url in link.items():
-                # 清理 URL，移除多余的空格和反引号
-                clean_url = url.strip().strip("`").strip()
-                formatted_links.append(f"- [{title_text}]({clean_url})")
-        else:
-            formatted_links.append(f"- {link}")
-
-        links_text = "\n".join(formatted_links)
-        f.write(f"{content}\n\n## 参考链接\n\n{links_text}")
+        f.write(novel)
     return filename
