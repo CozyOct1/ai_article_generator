@@ -5,7 +5,7 @@ import json
 import toml
 
 from agent.tools.agent_coze import AgentCoze
-from agent.tools.common import save_md
+from agent.tools.common import save_md, cp_file, hexo_deploy
 
 
 def github_md():
@@ -16,7 +16,7 @@ def github_md():
         # 读取配置文件
         try:
             agent_coze_config = toml.load(f"./configs/agent_coze.toml")
-            blog_config = toml.load(f"./configs/blog.toml")
+            blog_config = toml.load(f"./configs/hexo_blog.toml")
             api_token = agent_coze_config["api"]["api_token"]
             api_base = agent_coze_config["api"]["api_base"]
             github_workflow = agent_coze_config["github_workflow"]["workflow_id"]
@@ -70,12 +70,22 @@ def github_md():
             is_upload = input("请输入正确的选项(y/n):\n")
         if is_upload == "y":
             try:
-                dst = cp_file(filename, f"{blog_dir}/input_novel/")
+                dst = f"{blog_dir}/source/_posts/github_md/{title}.md"
+                cp_file(filename, dst)
                 print(f"文件已复制到 {dst}")
             except Exception as e:
                 print(f"[github_md] <error>\n{traceback.format_exc()}")
         else:
             print("文件未上传")
+
+        # 部署 Hexo 博客
+        print("正在部署 Hexo 博客...")
+        try:
+            hexo_deploy(blog_dir)
+            print("Hexo 博客已部署")
+        except Exception as e:
+            print(f"[github_md] <error>\n{traceback.format_exc()}")
+            return
     except Exception as e:
         print(f"[github_md] <error>\n{traceback.format_exc()}")
         return

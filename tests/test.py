@@ -1,4 +1,5 @@
-from agent.tools.common import cp_file
+from agent.tools.common import cp_file, hexo_deploy
 
 if __name__ == "__main__":
-    cp_file("/data1/niewenjie/private/vault/ai_article_generator/agent/memory/github_md/⚡️ 2025-09-22 GitHub Trending 一周热榜速报 | 通义DeepResearch 300亿参数.md", "/data1/niewenjie/private/vault/hexo_blog/source/_posts/github_md")
+    cp_file("./agent/memory/input_novel/Conda环境初始化与默认配置：Linux系统Anaconda部署详解.md", "../hexo_blog/source/_posts/input_novel/Conda环境初始化与默认配置：Linux系统Anaconda部署详解.md")
+    hexo_deploy("../hexo_blog")

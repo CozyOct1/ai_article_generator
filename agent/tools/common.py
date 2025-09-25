@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 
 
@@ -22,15 +21,27 @@ def cp_file(src: str, dst: str) -> str:
     """复制文件
 
     :param str src: 源文件路径
-    :param str dst: 目标路径（可以是文件路径或目录路径）
+    :param str dst: 目标文件路径
     :return str: 返回目标文件路径
     """
-    # 如果目标是目录，则在目录中创建同名文件
-    if os.path.isdir(dst):
-        filename = os.path.basename(src)
-        dst = os.path.join(dst, filename)
-
     # 确保目标目录存在
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     shutil.copyfile(src, dst)
     return dst
+
+
+def hexo_deploy(blog_dir: str):
+    """部署 Hexo 博客
+
+    :param str blog_dir: 博客目录路径
+    """
+    # 切换到 Hexo 博客目录并执行部署命令
+    original_cwd = os.getcwd()
+    os.chdir(blog_dir)
+    os.system("git clean")
+    os.system("hexo generate")
+    os.system("hexo deploy")
+    os.system("git add .")
+    os.system("git commit -m 'update blog'")
+    os.system("git push")
+    os.chdir(original_cwd)

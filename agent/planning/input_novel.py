@@ -6,7 +6,7 @@ import uuid
 import toml
 
 from agent.tools.agent_coze import AgentCoze
-from agent.tools.common import cp_file, save_md
+from agent.tools.common import cp_file, save_md, hexo_deploy
 
 
 def input_novel():
@@ -17,7 +17,7 @@ def input_novel():
         # 读取配置文件
         try:
             agent_coze_config = toml.load(f"./configs/agent_coze.toml")
-            blog_config = toml.load(f"./configs/blog.toml")
+            blog_config = toml.load(f"./configs/hexo_blog.toml")
             api_token = agent_coze_config["api"]["api_token"]
             api_base = agent_coze_config["api"]["api_base"]
             title_bot_id = agent_coze_config["title_bot"]["bot_id"]
@@ -124,12 +124,22 @@ def input_novel():
             is_upload = input("请输入正确的选项(y/n):\n")
         if is_upload == "y":
             try:
-                dst = cp_file(filename, f"{blog_dir}/input_novel/")
+                dst = f"{blog_dir}/source/_posts/input_novel/{title}.md"
+                cp_file(filename, dst)
                 print(f"文件已复制到 {dst}")
             except Exception as e:
                 print(f"[input_novel] <error>\n{traceback.format_exc()}")
         else:
             print("文件未上传")
+
+        # 部署 Hexo 博客
+        print("正在部署 Hexo 博客...")
+        try:
+            hexo_deploy(blog_dir)
+            print("Hexo 博客已部署")
+        except Exception as e:
+            print(f"[input_novel] <error>\n{traceback.format_exc()}")
+            return
     except Exception as e:
         print(f"[input_novel] <error>\n{traceback.format_exc()}")
         return
