@@ -38,7 +38,7 @@ def hexo_deploy(blog_dir: str):
     # 切换到 Hexo 博客目录并执行部署命令
     original_cwd = os.getcwd()
     os.chdir(blog_dir)
-    os.system("git clean")
+    os.system("hexo clean")
     os.system("hexo generate")
     os.system("hexo deploy")
     os.system("git add .")
