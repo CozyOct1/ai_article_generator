@@ -36,3 +36,21 @@ class AgentCoze:
                 f"[agent_chat] <error>\n对话失败, title_bot.chat.status={title_bot.chat.status}"
             )
             return ""
+
+    def workflow_chat(self, workflow_id: str, user_input: str) -> str:
+        """
+        与 Coze 工作流机器人进行聊天
+
+        :param str workflow_id: 工作流机器人的 ID
+        :param str user_input: 用户的输入消息
+        :return str: 机器人回复的消息内容
+        """
+        workflow = self.coze.workflows.runs.create(
+            workflow_id=workflow_id,
+            parameters={"user_input": user_input},
+        )
+        if workflow.data:
+            return workflow.data
+        else:
+            print(f"[workflow_chat] <error>\n对话失败, workflow.data={workflow.data}")
+            return {}
