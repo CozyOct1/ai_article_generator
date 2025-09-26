@@ -5,6 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "bleach>=6.2.0",
     "cozepy>=0.19.0",
+    "markdown>=3.9",
+    "requests>=2.32.5",
     "toml>=0.10.2",
 ]

@@ -1,11 +1,18 @@
+import json
 import time
 import traceback
-import json
 
 import toml
 
 from agent.tools.agent_coze import AgentCoze
-from agent.tools.common import save_md, cp_file, hexo_deploy
+from agent.tools.common import (
+    cp_file,
+    hexo_deploy,
+    md_clean_header,
+    md_to_richtext_zhihu,
+    save_md,
+)
+from agent.tools.uploader import zhihu_uploader
 
 
 def github_md():
@@ -17,10 +24,13 @@ def github_md():
         try:
             agent_coze_config = toml.load(f"./configs/agent_coze.toml")
             blog_config = toml.load(f"./configs/hexo_blog.toml")
+            cookies = toml.load(f"./configs/cookies.toml")
             api_token = agent_coze_config["api"]["api_token"]
             api_base = agent_coze_config["api"]["api_base"]
             github_workflow = agent_coze_config["github_workflow"]["workflow_id"]
             blog_dir = blog_config["blog"]["blog_dir"]
+            zhihu_cookies = cookies["zhihu"]["cookie"]
+            zhihu_column_id = cookies["zhihu"]["column_id"]
             print("读取配置文件成功")
         except Exception as e:
             print(f"[github_md] <error>\n{traceback.format_exc()}")
@@ -63,6 +73,7 @@ def github_md():
                 print(f"[github_md] <error>\n{traceback.format_exc()}")
         else:
             print("文章未保存")
+            return
 
         # 复制文件到博客文件夹下
         is_upload = input("是否上传到博客？(输入y/n):\n")
@@ -77,6 +88,7 @@ def github_md():
                 print(f"[github_md] <error>\n{traceback.format_exc()}")
         else:
             print("文件未上传")
+            return
 
         # 部署 Hexo 博客
         print("正在部署 Hexo 博客...")
@@ -85,6 +97,33 @@ def github_md():
             print("Hexo 博客已部署")
         except Exception as e:
             print(f"[github_md] <error>\n{traceback.format_exc()}")
+            return
+
+        # 上传到知乎
+        is_upload_zhihu = input("是否上传到知乎？(输入y/n):\n")
+        while is_upload_zhihu not in ["y", "n"]:
+            is_upload_zhihu = input("请输入正确的选项(y/n):\n")
+        if is_upload_zhihu == "y":
+            try:
+                # 清理 Markdown 内容中的标题块
+                cleaned_novel = md_clean_header(novel)
+                # 转换为知乎格式
+                rich_text = md_to_richtext_zhihu(cleaned_novel)
+                # 上传到知乎
+                if zhihu_uploader(
+                    cookies=zhihu_cookies,
+                    title=title,
+                    content=rich_text,
+                    column_id=zhihu_column_id,
+                ):
+                    print(f"文章已上传到知乎")
+                else:
+                    print(f"文章未上传到知乎")
+            except Exception as e:
+                print(f"[github_md] <error>\n{traceback.format_exc()}")
+                return
+        else:
+            print("文章未上传到知乎")
             return
     except Exception as e:
         print(f"[github_md] <error>\n{traceback.format_exc()}")

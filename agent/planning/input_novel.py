@@ -6,7 +6,7 @@ import uuid
 import toml
 
 from agent.tools.agent_coze import AgentCoze
-from agent.tools.common import cp_file, save_md, hexo_deploy
+from agent.tools.common import cp_file, hexo_deploy, save_md
 
 
 def input_novel():
@@ -117,6 +117,7 @@ def input_novel():
                 print(f"[input_novel] <error>\n{traceback.format_exc()}")
         else:
             print("文章未保存")
+            return
 
         # 复制文件到博客文件夹下
         is_upload = input("是否上传到博客？(输入y/n):\n")
@@ -131,6 +132,7 @@ def input_novel():
                 print(f"[input_novel] <error>\n{traceback.format_exc()}")
         else:
             print("文件未上传")
+            return
 
         # 部署 Hexo 博客
         print("正在部署 Hexo 博客...")
