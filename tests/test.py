@@ -30,7 +30,7 @@ if __name__ == "__main__":
 
     # 上传到专栏
     cookie = cookies["juejin"]["cookie"]
-    column_id = cookies["juejin"]["cookie"]
+    column_id = cookies["juejin"]["column_id"]
     # print(cookie)
     if juejin_uploader(cookie, title, content, column_id):
         print("上传成功")
