@@ -1,5 +1,5 @@
 import time
-
+import json
 import requests
 
 
@@ -112,4 +112,114 @@ def zhihu_uploader(
         return True
     except Exception as e:
         print(f"上传过程中发生错误: {str(e)}")
+        return False
+
+
+def juejin_uploader(
+    cookies: str, title: str, content: str, column_id: str = None
+) -> bool:
+    """
+    上传文章到掘金或掘金专栏
+
+    :param str cookies: cookies字符串
+    :param str title: 文章标题
+    :param str content: 文章内容（支持Markdown格式）
+    :param str column_id: 专栏ID（可选），如果提供则发布到专栏，否则发布为个人文章
+    :return bool: 是否上传成功
+    """
+    
+    # 请求头设置
+    headers = {
+        'content-type': 'application/json',
+        'cookie': cookies
+    }
+    
+    # URL参数
+    url_params = {
+        'aid': '2608',
+        'uuid': '7234730992652797497'
+    }
+    
+    # 第一步：创建文章草稿
+    draft_url = 'https://api.juejin.cn/content_api/v1/article_draft/create'
+    
+    # 请求体参数
+    draft_data = {
+        "category_id": "6809637773935378440",  # 前端分类ID
+        "tag_ids": ["6809640375880253447"],       # 空标签列表
+        "link_url": "",
+        "cover_image": "",
+        "title": title,
+        "brief_content": "",
+        "edit_type": 10,     # 编辑类型固定为10
+        "html_content": "",  # 被废弃的字段，传空值
+        "mark_content": content,  # Markdown内容
+        "theme_ids": []      # 空话题列表
+    }
+    
+    try:
+        # 创建草稿
+        draft_response = requests.post(
+            draft_url,
+            headers=headers,
+            params=url_params,
+            data=json.dumps(draft_data)
+        )
+        
+        draft_result = draft_response.json()
+        
+        # 检查草稿创建是否成功
+        if draft_result.get('err_no') != 0:
+            print(f"草稿创建失败: {draft_result.get('err_msg')}")
+            return False
+        
+        draft_id = draft_result['data']['id']
+        print(f"草稿创建成功，草稿ID: {draft_id}")
+        
+        # 第二步：发布文章
+        publish_url = 'https://api.juejin.cn/content_api/v1/article/publish'
+        
+        # 构建专栏ID列表
+        column_ids = [column_id] if column_id else []
+        
+        publish_data = {
+            "draft_id": draft_id,
+            "sync_to_org": False,
+            "column_ids": column_ids,  # 专栏ID列表
+            "theme_ids": [],
+            "encrypted_word_count": len(content.encode('utf-8')),  # 编码后字数
+            "origin_word_count": len(content)  # 原始字数
+        }
+        
+        # 发布文章
+        publish_response = requests.post(
+            publish_url,
+            headers=headers,
+            params=url_params,
+            data=json.dumps(publish_data)
+        )
+        
+        publish_result = publish_response.json()
+        
+        # 检查发布是否成功
+        if publish_result.get('err_no') != 0:
+            print(f"文章发布失败: {publish_result.get('err_msg')}")
+            return False
+        
+        article_id = publish_result['data']['article_id']
+        print(f"文章发布成功，文章ID: {article_id}")
+        
+        return True
+        
+    except requests.exceptions.RequestException as e:
+        print(f"网络请求错误: {e}")
+        return False
+    except json.JSONDecodeError as e:
+        print(f"JSON解析错误: {e}")
+        return False
+    except KeyError as e:
+        print(f"响应数据格式错误，缺少字段: {e}")
+        return False
+    except Exception as e:
+        print(f"未知错误: {e}")
         return False
