@@ -5,32 +5,22 @@ import traceback
 import toml
 
 from agent.tools.agent_coze import AgentCoze
-from agent.tools.common import (
-    cp_file,
-    hexo_deploy,
-    md_clean_header,
-    md_to_richtext_zhihu,
-    save_md,
-)
-from agent.tools.uploader import zhihu_uploader
+from agent.tools.common import cp_file, hexo_deploy, save_md
 
 
 def github_md():
     """
-    生成最近一周Github热榜文章
+    生成最近每日Github热榜文章
     """
     try:
         # 读取配置文件
         try:
             agent_coze_config = toml.load(f"./configs/agent_coze.toml")
             blog_config = toml.load(f"./configs/hexo_blog.toml")
-            cookies = toml.load(f"./configs/cookies.toml")
             api_token = agent_coze_config["api"]["api_token"]
             api_base = agent_coze_config["api"]["api_base"]
             github_workflow = agent_coze_config["github_workflow"]["workflow_id"]
             blog_dir = blog_config["blog"]["blog_dir"]
-            zhihu_cookies = cookies["zhihu"]["cookie"]
-            zhihu_column_id = cookies["zhihu"]["column_id"]
             print("读取配置文件成功")
         except Exception as e:
             print(f"[github_md] <error>\n{traceback.format_exc()}")
@@ -55,6 +45,7 @@ def github_md():
             workflow_data = json.loads(workflow_data)
             title = workflow_data["title"]
             novel = workflow_data["novel"]
+            redbook = workflow_data["redbook"]
             print(f"文章标题: {title}")
             print(f"生成内容(耗时{tok - tik:.2f}秒):: \n{novel}")
         except Exception as e:
@@ -69,6 +60,11 @@ def github_md():
             try:
                 filename = save_md(directory="github_md", title=title, novel=novel)
                 print(f"文章已保存至 {filename}")
+                # 保存红书文章到文件
+                redbook_filename = save_md(
+                    directory="github_md", title=f"{title}_redbook", novel=redbook
+                )
+                print(f"红书文章已保存至 {redbook_filename}")
             except Exception as e:
                 print(f"[github_md] <error>\n{traceback.format_exc()}")
         else:
@@ -99,32 +95,34 @@ def github_md():
             print(f"[github_md] <error>\n{traceback.format_exc()}")
             return
 
-        # 上传到知乎
-        is_upload_zhihu = input("是否上传到知乎？(输入y/n):\n")
-        while is_upload_zhihu not in ["y", "n"]:
-            is_upload_zhihu = input("请输入正确的选项(y/n):\n")
-        if is_upload_zhihu == "y":
-            try:
-                # 清理 Markdown 内容中的标题块
-                cleaned_novel = md_clean_header(novel)
-                # 转换为知乎格式
-                rich_text = md_to_richtext_zhihu(cleaned_novel)
-                # 上传到知乎
-                if zhihu_uploader(
-                    cookies=zhihu_cookies,
-                    title=title,
-                    content=rich_text,
-                    column_id=zhihu_column_id,
-                ):
-                    print(f"文章已上传到知乎")
-                else:
-                    print(f"文章未上传到知乎")
-            except Exception as e:
-                print(f"[github_md] <error>\n{traceback.format_exc()}")
-                return
-        else:
-            print("文章未上传到知乎")
-            return
+        # 封面生成,"|"分隔title
+        title = title.split("｜")[1]
+        print("https://www.doubao.com/chat/create-image")
+        print(
+            f"提示词：图片风格为「像素风格」，艺术字标题「{title}」，标题位于图片中部，背景体现标题内容，比例 「21:9」，不要生成比例相关的文字"
+        )
+        # 发表到以下博客地址：
+        ## 知乎
+        print("知乎：https://zhuanlan.zhihu.com/write")
+        ## 简书
+        print("简书：https://www.jianshu.com/writer#/notebooks/56349606")
+        ## 思否
+        print("思否：https://segmentfault.com/write?freshman=1")
+        ## 博客园
+        print("博客园：https://i.cnblogs.com/articles/edit")
+        ## 小红书
+        print(
+            "小红书：https://creator.xiaohongshu.com/publish/publish?from=menu&target=article"
+        )
+        ## CSDN
+        print("CSDN：https://editor.csdn.net/md")
+        ## 稀土掘金
+        print("稀土掘金：https://juejin.cn/editor/drafts/new?v=2")
+        ## 微信公众号
+        print(
+            "微信公众号：https://mp.weixin.qq.com/cgi-bin/appmsg?t=media/appmsg_edit_v2&action=edit&isNew=1&type=10&createType=8&token=1529114311&lang=zh_CN&timestamp=1760423443911"
+        )
+
     except Exception as e:
         print(f"[github_md] <error>\n{traceback.format_exc()}")
         return
