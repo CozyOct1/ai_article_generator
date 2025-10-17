@@ -101,6 +101,7 @@ def github_md():
         print(
             f"提示词：图片风格为「像素风格」，艺术字标题「{title}」，标题位于图片中部，背景体现标题内容，比例 「21:9」，不要生成比例相关的文字"
         )
+        print("去水印：https://magiceraser.org/zh/remove-watermark-from-image/")
         # 发表到以下博客地址：
         ## 知乎
         print("知乎：https://zhuanlan.zhihu.com/write")
